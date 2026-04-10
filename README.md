@@ -1,6 +1,10 @@
 # 1Panel WAF 和网站页面集合
 
 这是一个为 1Panel 面板设计的 WAF（Web 应用防火墙）和网站相关页面集合，提供了一系列专业的错误提示和状态页面。
+## 灯塔网络科技（甘肃）有限公司
+官网；www.dengtanet.com
+灯塔导航:dengtanet.com
+
 
 ## 项目结构
 
