@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灯塔风险管控与合规平台</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --danger: #FF3A30;
+            --primary: #00F5FF;
+            --secondary: #7928CA;
+            --dark: #0A0E17;
+            --dark-light: #1A1F2E;
+        }
+        
+        body {
+            font-family: 'Rajdhani', monospace;
+            background-color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow: hidden;
+            color: #E5E7EB;
+        }
+        
+        /* 背景效果 */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 245, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 245, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 0;
+        }
+        
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom right, var(--dark), var(--dark-light));
+            opacity: 0.9;
+            z-index: 0;
+        }
+        
+        .bg-tech {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 245, 255, 0.1) 0%, rgba(121, 40, 202, 0.1) 50%, transparent 100%);
+            z-index: 0;
+        }
+        
+        /* 动态线条 */
+        .dynamic-lines {
+            position: fixed;
+            inset: 0;
+            opacity: 0.2;
+            z-index: 0;
+        }
+        
+        /* 粒子效果 */
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            border-radius: 50%;
+            animation: particleFloat 8s ease-in-out infinite;
+        }
+        
+        /* 扫描线效果 */
+        .scan-lines {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background-color: rgba(0, 245, 255, 0.3);
+            animation: scan 4s linear infinite;
+        }
+        
+        .scan-line:nth-child(2) {
+            background-color: rgba(121, 40, 202, 0.2);
+            animation-delay: 2s;
+        }
+        
+        /* 数据流效果 */
+        .data-flow {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.05;
+            z-index: 0;
+        }
+        
+        .data-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background-color: var(--primary);
+            animation: dataFlow 3s linear infinite;
+        }
+        
+        .data-line:nth-child(2) {
+            background-color: var(--secondary);
+            animation-delay: 1s;
+        }
+        
+        .data-line:nth-child(3) {
+            background-color: var(--primary);
+            animation-delay: 2s;
+        }
+        
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            background-color: var(--dark-light);
+            border-radius: 1rem;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            padding: 2.5rem;
+            max-width: 56rem;
+            width: 100%;
+            z-index: 10;
+            animation: float 6s ease-in-out infinite, borderPulse 2s linear infinite;
+        }
+        
+        /* 顶部装饰 */
+        .top-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, var(--primary), var(--secondary), var(--primary));
+        }
+        
+        /* 警告灯 */
+        .warning-lights {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .warning-light {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+        }
+        
+        .warning-light.red {
+            background-color: var(--danger);
+            animation: warningFlash 1s ease-in-out infinite;
+        }
+        
+        .warning-light.blue {
+            background-color: var(--primary);
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .warning-light.purple {
+            background-color: var(--secondary);
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            animation-delay: 1s;
+        }
+        
+        /* 内容布局 */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        @media (min-width: 768px) {
+            .content {
+                flex-direction: row;
+            }
+        }
+        
+        /* 左侧图标 */
+        .icon-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .icon-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .icon-bg {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 245, 255, 0.2);
+            border-radius: 50%;
+            filter: blur(1rem);
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .restriction-icon {
+            width: 8rem;
+            height: 8rem;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.8));
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .icon-line {
+            width: 4rem;
+            height: 1px;
+            background-color: rgba(0, 245, 255, 0.5);
+            margin-top: 1rem;
+            animation: warningFlash 1s ease-in-out infinite;
+        }
+        
+        /* 右侧内容 */
+        .text-section {
+            flex: 3;
+        }
+        
+        /* 标题 */
+        .title-container {
+            margin-bottom: 2rem;
+        }
+        
+        .title-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .title-light {
+            width: 1rem;
+            height: 1rem;
+            background-color: var(--primary);
+            border-radius: 50%;
+            animation: warningFlash 1s ease-in-out infinite;
+        }
+        
+        .title-light:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+        
+        .main-title {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+            animation: flicker 2s ease-in-out infinite alternate;
+        }
+        
+        @media (min-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+        }
+        
+        .title-decoration {
+            width: 8rem;
+            height: 1px;
+            background: linear-gradient(to right, var(--primary), transparent);
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .subtitle-light {
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: var(--primary);
+            border-radius: 50%;
+            animation: warningFlash 1s ease-in-out infinite;
+        }
+        
+        .subtitle-light:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+        
+        /* 信息卡片 */
+        .info-cards {
+            margin: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        
+        .info-card {
+            border-left: 4px solid;
+            padding-left: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .info-card.danger {
+            border-left-color: var(--danger);
+        }
+        
+        .info-card.primary {
+            border-left-color: var(--primary);
+        }
+        
+        .info-card.secondary {
+            border-left-color: var(--secondary);
+        }
+        
+        .card-title {
+            font-size: 1.125rem;
+            color: #E5E7EB;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-label {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .card-label.danger {
+            color: var(--danger);
+        }
+        
+        .card-label.primary {
+            color: var(--primary);
+        }
+        
+        .card-label.secondary {
+            color: var(--secondary);
+        }
+        
+        .card-text {
+            font-size: 0.875rem;
+            color: #9CA3AF;
+            margin-top: 0.25rem;
+        }
+        
+        .card-value {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .card-value.danger {
+            color: var(--danger);
+        }
+        
+        /* 邮箱卡片 */
+        .email-card {
+            margin-top: 2.5rem;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background-color: rgba(0, 245, 255, 0.05);
+        }
+        
+        .email-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .email-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            background-color: rgba(0, 245, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .email-icon svg {
+            width: 1rem;
+            height: 1rem;
+            color: var(--primary);
+        }
+        
+        .email-title {
+            font-size: 1.125rem;
+            color: #E5E7EB;
+        }
+        
+        .email-address {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .email-address:hover {
+            color: #FFFFFF;
+        }
+        
+        /* 底部 */
+        .footer {
+            position: relative;
+            width: 100%;
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(0, 245, 255, 0.1);
+            margin-top: 4rem;
+            z-index: 10;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @media (min-width: 768px) {
+            .footer-content {
+                flex-direction: row;
+                gap: 2rem;
+            }
+        }
+        
+        .footer-link {
+            color: #6B7280;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        .footer-text {
+            color: #6B7280;
+        }
+        
+        .footer-gradient {
+            color: #6B7280;
+        }
+        
+        /* 底部装饰 */
+        .bottom-decoration {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6rem;
+            background: linear-gradient(to top, var(--dark), transparent);
+            z-index: 0;
+        }
+        
+        /* 动画 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes borderPulse {
+            0% { box-shadow: 0 0 5px rgba(0, 245, 255, 0.5), inset 0 0 5px rgba(0, 245, 255, 0.1); }
+            50% { box-shadow: 0 0 20px rgba(0, 245, 255, 0.8), inset 0 0 10px rgba(0, 245, 255, 0.3); }
+            100% { box-shadow: 0 0 5px rgba(0, 245, 255, 0.5), inset 0 0 5px rgba(0, 245, 255, 0.1); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(100%); opacity: 0; }
+        }
+        
+        @keyframes warningFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+            50% { transform: translateY(-10px) translateX(-10px); opacity: 0.5; }
+            75% { transform: translateY(-15px) translateX(5px); opacity: 0.7; }
+        }
+        
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.7; }
+        }
+        
+        @keyframes dataFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景效果 -->
+    <div class="bg-grid"></div>
+    <div class="bg-gradient"></div>
+    <div class="bg-tech"></div>
+    
+    <!-- 动态线条 -->
+    <div class="dynamic-lines">
+        <svg width="100%" height="100%">
+            <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00F5FF" stroke-width="0.5"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)"/>
+        </svg>
+    </div>
+
+    <!-- 粒子效果 -->
+    <div class="particles">
+        <div class="particle" style="left: 15%; top: 20%; background-color: var(--primary); animation-delay: 0s;"></div>
+        <div class="particle" style="left: 85%; top: 30%; background-color: var(--secondary); animation-delay: 1s;"></div>
+        <div class="particle" style="left: 35%; top: 70%; background-color: var(--primary); animation-delay: 2s;"></div>
+        <div class="particle" style="left: 65%; top: 80%; background-color: var(--secondary); animation-delay: 3s;"></div>
+        <div class="particle" style="left: 25%; top: 50%; background-color: var(--primary); animation-delay: 4s;"></div>
+        <div class="particle" style="left: 75%; top: 10%; background-color: var(--secondary); animation-delay: 5s;"></div>
+        <div class="particle" style="left: 45%; top: 90%; background-color: var(--primary); animation-delay: 6s;"></div>
+        <div class="particle" style="left: 55%; top: 40%; background-color: var(--secondary); animation-delay: 7s;"></div>
+        <div class="particle" style="left: 60%; top: 25%; background-color: var(--primary); animation-delay: 0.5s;"></div>
+        <div class="particle" style="left: 30%; top: 15%; background-color: var(--secondary); animation-delay: 1.5s;"></div>
+        <div class="particle" style="left: 70%; top: 60%; background-color: var(--primary); animation-delay: 2.5s;"></div>
+        <div class="particle" style="left: 10%; top: 85%; background-color: var(--secondary); animation-delay: 3.5s;"></div>
+    </div>
+
+    <!-- 扫描线效果 -->
+    <div class="scan-lines">
+        <div class="scan-line" style="top: 0;"></div>
+        <div class="scan-line" style="top: 0;"></div>
+    </div>
+
+    <!-- 数据流效果 -->
+    <div class="data-flow">
+        <div class="data-line" style="top: 25%;"></div>
+        <div class="data-line" style="top: 50%;"></div>
+        <div class="data-line" style="top: 75%;"></div>
+    </div>
+
+    <!-- 大长方形包裹框 -->
+    <div class="main-container">
+        <!-- 顶部装饰 -->
+        <div class="top-decoration"></div>
+        
+        <!-- 警告灯 -->
+        <div class="warning-lights">
+            <div class="warning-light blue"></div>
+            <div class="warning-light purple"></div>
+            <div class="warning-light blue"></div>
+        </div>
+        
+        <!-- 左侧图标 + 右侧内容 横向布局 -->
+        <div class="content">
+            <!-- 左侧网站不存在图标 -->
+            <div class="icon-section">
+                <div class="icon-container">
+                    <div class="icon-bg"></div>
+                    <img src="https://img.icons8.com/?size=100&id=U8mvI6ZheAWJ&format=png&color=000000" 
+                         alt="网站不存在" 
+                         class="restriction-icon">
+                    <div class="icon-line"></div>
+                </div>
+            </div>
+
+            <!-- 右侧文字内容区域 -->
+            <div class="text-section">
+                <!-- 标题 -->
+                <div class="title-container">
+                    <div class="title-row">
+                        <div class="title-light"></div>
+                        <h1 class="main-title">网 站 不 存 在</h1>
+                        <div class="title-light"></div>
+                    </div>
+                    <div class="title-decoration"></div>
+                    <p class="subtitle">
+                        <span class="subtitle-light"></span>
+                        WEBSITE NOT FOUND
+                        <span class="subtitle-light"></span>
+                    </p>
+                </div>
+
+                <!-- 核心提示文本 -->
+                <div class="info-cards">
+                    <div class="info-card primary">
+                        <div class="card-title">
+                            <span class="card-label primary">[NOT FOUND]</span>
+                            您访问的网站不存在或已被移除
+                        </div>
+                    </div>
+                    
+                    <div class="info-card secondary">
+                        <div class="card-title">
+                            <span class="card-label secondary">[SYSTEM RESPONSE]</span>
+                            请检查您输入的网址是否正确，或联系管理员获取帮助
+                        </div>
+                        <div class="card-text">
+                            Suggestion: <span class="card-value">Verify URL or contact administrator</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card secondary">
+                        <div class="card-title">
+                            <span class="card-label secondary">[ASSISTANCE]</span>
+                            若您认为此问题存在误判，可通过以下邮箱进行咨询
+                        </div>
+                        <div class="card-text">
+                            Support status: <span class="card-value">AVAILABLE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 咨询邮箱 -->
+                <div class="email-card">
+                    <div class="email-header">
+                        <div class="email-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
+                        <p class="email-title">咨询邮箱：</p>
+                    </div>
+                    <a href="mailto:mayijie@dengtanet.com" class="email-address">
+                        mayijie@dengtanet.com
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部备案/版权信息 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <!-- ICP备案文字+跳转 -->
+            <a href="https://beian.miit.gov.cn/" target="_blank" class="footer-link">
+                陇ICP备2025025190号
+            </a>
+            <span class="footer-text">@灯塔风险控制与合规平台</span>
+            <span class="footer-gradient">DENG TANET.COM@2026</span>
+            <!-- 灯塔社区链接 -->
+            <a href="https://www.dengtanet.com" target="_blank" class="footer-link">灯塔社区</a>
+        </div>
+    </footer>
+
+    <!-- 底部装饰 -->
+    <div class="bottom-decoration"></div>
+</body>
+</html>
